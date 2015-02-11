@@ -428,9 +428,11 @@ if __name__ == '__main__':
             idx = np.where(one_hot[i])[0]
             if len(idx) > 1:
                 codes = codebook[idx].mean(axis=0)
-            else:
+            elif len(idx) == 1:
                 codes = codebook[idx]
-            arr[i] = codes
+            if len(codes) > 0:
+                # skip case with no matching clusters
+                arr[i] = codes.ravel()
         return arr
 
     for i in [0, 20, 40, 60, 80, 100]:
