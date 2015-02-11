@@ -424,9 +424,13 @@ if __name__ == '__main__':
 
     def reconstruct(codebook, one_hot, n_features):
         arr = np.zeros((len(one_hot), n_features))
-        idx = np.where(one_hot)[1]
         for i in range(len(arr)):
-            arr[i] = codebook[idx[i]]
+            idx = np.where(one_hot[i])[0]
+            if len(idx) > 1:
+                codes = codebook[idx].mean(axis=0)
+            else:
+                codes = codebook[idx]
+            arr[i] = codes
         return arr
 
     for i in [0, 20, 40, 60, 80, 100]:
