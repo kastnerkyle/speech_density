@@ -349,7 +349,7 @@ dt : float
 
 
 def test_lstmrbm(X, batch_size=100, num_epochs=200):
-    model = LstmRbm(X[0].shape[1])
+    model = LstmRbm(X[0].shape[1], n_hidden=300, n_hidden_recurrent=200)
     model.train(X, batch_size=batch_size, num_epochs=num_epochs)
     return model
 
@@ -394,7 +394,7 @@ if __name__ == '__main__':
         gain_kmeans_samples.shape[0] * gain_kmeans_samples.shape[1], -1)
 
     print("Fitting Kmeans...")
-    n_lsf_clusters = 1000
+    n_lsf_clusters = 100
     lsf_tf = KMeans(n_clusters=n_lsf_clusters, random_state=1999)
     lsf_tf.fit(lsf_kmeans_samples)
     n_gain_clusters = 100
@@ -424,15 +424,27 @@ if __name__ == '__main__':
 
     def reconstruct(codebook, one_hot, n_features):
         arr = np.zeros((len(one_hot), n_features))
+        prev_code = None
         for i in range(len(arr)):
             idx = np.where(one_hot[i])[0]
-            if len(idx) > 1:
-                codes = codebook[idx].mean(axis=0)
+            code = codebook[idx]
+            if len(idx) > 1 and prev_code is not None:
+                if prev_code in code:
+                    print("Using previous code")
+                    code = prev_code
+                else:
+                    code = code.mean(axis=0)
             elif len(idx) == 1:
-                codes = codebook[idx]
-            if len(codes) > 0:
-                # skip case with no matching clusters
-                arr[i] = codes.ravel()
+                code = codebook[idx]
+            else:
+                if prev_code is not None:
+                    # If there are none active just use the previous
+                    code = prev_code
+                else:
+                    # Very first sample is messed up... just pick one
+                    code = codebook[0]
+            arr[i] = code
+            prev_code = code
         return arr
 
     for i in [0, 20, 40, 60, 80, 100]:

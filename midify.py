@@ -609,8 +609,7 @@ def lpc_synthesis(lp_coefficients, per_frame_gain, residual_excitation=None,
     residual_excitation = np.hstack((residual_excitation,
                                      np.zeros(window_size)))
     if voiced_frames is None:
-        #voiced_frames = np.ones_like(per_frame_gain)
-        voiced_frames = np.zeros_like(per_frame_gain)
+        voiced_frames = np.ones_like(per_frame_gain)
 
     synthesized = np.zeros((n_points))
     for window in range(n_windows):
